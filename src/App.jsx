@@ -35,18 +35,30 @@ function formatDateFull(date) {
   });
 }
 
+async function getVisitorInfo() {
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const d = await res.json();
+    return `🌐 IP: ${d.ip} (${d.city || "?"}, ${d.country_name || "?"})`;
+  } catch {
+    return "🌐 IP: не удалось получить";
+  }
+}
+
 async function sendToTelegram(activity, date, time) {
   const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
   const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
     return { ok: false, error: "Токен или chat_id не настроены" };
   }
+  const ipInfo = await getVisitorInfo();
   const text =
     `💕 Новый ответ на приглашение!\n\n` +
     `✅ Она сказала: ДА!\n\n` +
     `${activity.icon} Активность: ${activity.name}\n` +
     `📅 Дата: ${formatDateFull(date)}\n` +
-    `🕐 Время: ${time}`;
+    `🕐 Время: ${time}\n\n` +
+    `${ipInfo}`;
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
