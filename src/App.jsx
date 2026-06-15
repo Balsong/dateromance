@@ -39,8 +39,7 @@ async function sendToTelegram(activity, date, time) {
   const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
   const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
-    console.warn("Telegram: VITE_TELEGRAM_BOT_TOKEN or VITE_TELEGRAM_CHAT_ID not set");
-    return;
+    return { ok: false, error: "Токен или chat_id не настроены" };
   }
   const text =
     `💕 Новый ответ на приглашение!\n\n` +
@@ -49,13 +48,15 @@ async function sendToTelegram(activity, date, time) {
     `📅 Дата: ${formatDateFull(date)}\n` +
     `🕐 Время: ${time}`;
   try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text }),
     });
+    const data = await res.json();
+    return data.ok ? { ok: true } : { ok: false, error: JSON.stringify(data) };
   } catch (e) {
-    console.error("Failed to send to Telegram", e);
+    return { ok: false, error: e.message };
   }
 }
 
@@ -189,7 +190,7 @@ function TimeStep({ activity, date, onSelect }) {
   );
 }
 
-function SuccessStep({ activity, date, time }) {
+function SuccessStep({ activity, date, time, tgStatus }) {
   return (
     <div className="flex flex-col items-center gap-4 text-center px-4 max-w-md">
       <img
@@ -205,6 +206,15 @@ function SuccessStep({ activity, date, time }) {
         <p className="text-zinc-600 capitalize">📅 {formatDateFull(date)}</p>
         <p className="text-zinc-600">🕐 {time}</p>
       </div>
+      {tgStatus === null && (
+        <p className="text-zinc-400 text-xs">Отправляю уведомление...</p>
+      )}
+      {tgStatus?.ok === true && (
+        <p className="text-green-500 text-xs">✓ Уведомление отправлено</p>
+      )}
+      {tgStatus?.ok === false && (
+        <p className="text-red-400 text-xs">Ошибка: {tgStatus.error}</p>
+      )}
       <p className="text-zinc-500 text-sm">Буду очень ждать! 💕</p>
     </div>
   );
@@ -216,6 +226,7 @@ export default function App() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [tgStatus, setTgStatus] = useState(null);
 
   const yesSize = Math.min(noCount * 6 + 16, 48);
 
@@ -232,7 +243,8 @@ export default function App() {
   const handleTimeSelect = async (time) => {
     setSelectedTime(time);
     setStep("success");
-    await sendToTelegram(selectedActivity, selectedDate, time);
+    const result = await sendToTelegram(selectedActivity, selectedDate, time);
+    setTgStatus(result);
   };
 
   return (
@@ -287,6 +299,7 @@ export default function App() {
           activity={selectedActivity}
           date={selectedDate}
           time={selectedTime}
+          tgStatus={tgStatus}
         />
       )}
 
