@@ -311,7 +311,7 @@ export default function App() {
 const Footer = () => (
   <a
     className="fixed bottom-2 right-2 backdrop-blur-md opacity-70 hover:opacity-95 border p-1 rounded border-rose-300 text-xs"
-    href="https://github.com/Xeven777/valentine"
+    href="https://github.com/Balsong/dateromance"
     target="_blank"
     rel="noreferrer"
   >
