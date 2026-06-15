@@ -35,3 +35,13 @@ VITE_TELEGRAM_CHAT_ID=твой_chat_id
 - React + Vite
 - Tailwind CSS
 - Telegram Bot API
+
+## Основа
+
+За основу взят проект [Anish Biswas (Xeven777)](https://github.com/Xeven777/valentine) — оригинальная идея с кнопкой "Will you be my Valentine?" и анимациями.
+
+Совместно с [Claude](https://claude.ai) поверх оригинала добавлено:
+- кнопка "Нет" убегает от курсора вместо простого изменения текста
+- пошаговое меню после "Да": выбор активности, даты и времени
+- интеграция с Telegram-ботом — ответ приходит в личку
+- деплой на GitHub Pages через GitHub Actions
