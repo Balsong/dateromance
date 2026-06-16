@@ -327,6 +327,6 @@ const Footer = () => (
     target="_blank"
     rel="noreferrer"
   >
-    Made with ❤️
+    github.com/Balsong/dateromance
   </a>
 );
